@@ -12,7 +12,7 @@ services:
       - "12601:2601"
       - "12605:2605"
     networks:
-        bgp_network:
+        router_network:
             ipv4_address: 172.18.0.2
         r1_pc1:
           ipv4_address: 172.19.0.2
@@ -36,7 +36,7 @@ services:
       - "22601:2601"
       - "22605:2605"
     networks:
-        bgp_network:
+        router_network:
           ipv4_address: 172.18.0.3
         r2_pc2:
           ipv4_address: 172.20.0.2
@@ -61,7 +61,7 @@ services:
       - "32601:2601"
       - "32605:2605"
     networks:
-        bgp_network:
+        router_network:
           ipv4_address: 172.18.0.4
     cap_add:
       - NET_ADMIN
@@ -111,7 +111,7 @@ services:
       tcpdump -i any udp port 44445 -X --immediate-mode -l > /root/dump_u44445"
 
 networks:
-    bgp_network:
+    router_network:
         driver: bridge
         ipam:
             config:

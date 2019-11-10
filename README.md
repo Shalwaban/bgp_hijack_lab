@@ -10,7 +10,7 @@ This is a BGP environment to be used in simulating BGP hijacking attacks. The la
 
 ## Running the lab
 
-To start the lab simply use docker-compose in the directory with docker-compose.yml:
+To start the lab simply bring docker-compose up in the directory with docker-compose.yml:
 
 ```
 docker-compose up -d
@@ -18,7 +18,7 @@ docker-compose up -d
 
 ## Using the lab
 
-The routers can be accessed with shell and the end users with bash:
+The routers can be accessed with shell & the end users with bash:
 
 ```
 docker exec -it R1 sh
