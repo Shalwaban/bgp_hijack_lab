@@ -1,6 +1,6 @@
 # BGP Hijack Lab
 
-This is a BGP environment to be used in simulating BGP hijacking attacks. The lab is made up of three Quagga containers configured to serve as eBGP routers and two Debian containers to represent end uers. The lab's architecture can be seen in [architecture.png](architecture.png). It has been configured so that PC1 is sending a UDP packet on port 4445 to PC2 every minute. The goal of this lab is to show how R3, a BGP neighbor of R1 and R2, is able to intercept traffic between R1 and R2 using a BGP hijack attack.
+This is a BGP environment to be used to simulate BGP hijack attacks. The lab is made up of three containers running Quagga configured to serve as eBGP routers and two Debian containers which represent end users. The network layout can be seen in [architecture.png](architecture.png). The lab is configured so that PC1 is sending a UDP packet on port 4445 to PC2 every minute. The goal of this lab is to show how R3, a BGP neighbor of R1 and R2, is able to intercept traffic between R1 and R2 using a BGP hijack attack.
 
 ## Prerequisites
 
