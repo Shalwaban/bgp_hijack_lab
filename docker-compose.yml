@@ -1,0 +1,128 @@
+version: '3'
+services:
+  R1:
+    image: gliderlabs/alpine
+    container_name: R1
+    hostname: R1
+    volumes:
+      - ./R1/quagga:/etc/quagga
+      - ./R1/supervisord.conf:/etc/supervisord.conf
+    ports:
+      - "1179:179"
+      - "12601:2601"
+      - "12605:2605"
+    networks:
+        bgp_network:
+            ipv4_address: 172.18.0.2
+        r1_pc1:
+          ipv4_address: 172.19.0.2
+    cap_add:
+      - NET_ADMIN
+    command: sh -c "
+      apk update &&
+      apk add quagga &&
+      apk add supervisor &&
+      /usr/bin/supervisord -c /etc/supervisord.conf"
+
+  R2:
+    image: gliderlabs/alpine
+    container_name: R2
+    hostname: R2
+    volumes:
+      - ./R2/quagga:/etc/quagga
+      - ./R2/supervisord.conf:/etc/supervisord.conf
+    ports:
+      - "2179:179"
+      - "22601:2601"
+      - "22605:2605"
+    networks:
+        bgp_network:
+          ipv4_address: 172.18.0.3
+        r2_pc2:
+          ipv4_address: 172.20.0.2
+    cap_add:
+      - NET_ADMIN
+    command: sh -c "
+      apk update &&
+      apk add quagga &&
+      apk add supervisor &&
+      /usr/bin/supervisord -c /etc/supervisord.conf"
+
+  R3:
+    image: gliderlabs/alpine
+    container_name: R3
+    hostname: R3
+    volumes:
+      - ./R3/quagga:/etc/quagga
+      - ./R3/supervisord.conf:/etc/supervisord.conf
+      - ./R3/bgp_hijack.sh:/root/bgp_hijack.sh
+    ports:
+      - "3179:179"
+      - "32601:2601"
+      - "32605:2605"
+    networks:
+        bgp_network:
+          ipv4_address: 172.18.0.4
+    cap_add:
+      - NET_ADMIN
+    command: sh -c "
+      apk update &&
+      apk add quagga &&
+      apk add supervisor &&
+      apk add tcpdump &&
+      /usr/bin/supervisord -c /etc/supervisord.conf"
+
+  PC1:
+    image: debian
+    container_name: PC1
+    hostname: PC1
+    tty: true
+    stdin_open: true
+    networks:
+      r1_pc1:
+        ipv4_address: 172.19.0.3
+    cap_add:
+      - NET_ADMIN
+    command: bash -c "
+      apt update &&
+      apt install -y cron &&
+      (echo 'SHELL=/bin/bash'; echo '* * * * * echo -n catfood > /dev/udp/172.20.0.3/44445') | crontab &&
+      service cron start &&
+      ip route del default && 
+      ip route add default via 172.19.0.2 &&
+      tail -f /dev/null"
+
+  PC2:
+    image: debian
+    container_name: PC2
+    hostname: PC2
+    tty: true
+    stdin_open: true
+    networks:
+      r2_pc2:
+        ipv4_address: 172.20.0.3
+    cap_add:
+      - NET_ADMIN
+    command: bash -c "
+      apt update &&
+      apt install -y tcpdump &&
+      ip route del default && 
+      ip route add default via 172.20.0.2 &&
+      tcpdump -i any udp port 44445 -X --immediate-mode -l > /root/dump_u44445"
+
+networks:
+    bgp_network:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.18.0.0/16
+    r1_pc1:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.19.0.0/16
+    r2_pc2:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.20.0.0/16
